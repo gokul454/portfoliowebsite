@@ -9,6 +9,7 @@ export default function Experience() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
+    
     <section id="experience" className="px-6 md:px-12 py-16 md:py-24 relative">
       <div className="max-w-[] mx-auto z-10 relative">
         <SectionHeading index="0x03" label="EXECUTION_LOG" title="Where the work has happened." />
