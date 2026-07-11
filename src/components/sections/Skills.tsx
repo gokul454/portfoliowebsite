@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import Reveal from '@/components/ui/Reveal';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { skillGroups } from '@/data/content';
+import { usePortfolio } from '@/context/PortfolioContext';
 import { staggerContainer, fadeUp, viewportOnce } from '@/animations/variants';
 
 export default function Skills() {
+  const { skills: skillGroups, loading } = usePortfolio();
   return (
     <section id="skills" className="px-6 md:px-12 py-16 md:py-24 relative">
       <div className="max-w-[1400px] mx-auto z-10 relative">
@@ -15,7 +16,16 @@ export default function Skills() {
           description="A registry of initialized skills and technical proficiencies."
         />
 
-        <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-x-16 gap-y-14">
+        {loading ? (
+          <div className="mt-12 md:mt-16 flex flex-col items-center justify-center py-10">
+            <div className="w-10 h-10 border border-dashed border-accent rounded-full animate-spin"></div>
+          </div>
+        ) : skillGroups.length === 0 ? (
+          <div className="mt-12 md:mt-16 text-center font-mono text-ink-soft opacity-50 py-10">
+            NO CAPABILITIES FOUND
+          </div>
+        ) : (
+          <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-x-16 gap-y-14">
           {skillGroups.map((group, gi) => (
             <motion.div
               key={group.label}
@@ -43,7 +53,8 @@ export default function Skills() {
               </ul>
             </motion.div>
           ))}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

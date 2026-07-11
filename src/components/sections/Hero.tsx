@@ -1,9 +1,18 @@
 import Button from '@/components/ui/Button';
 import { FiArrowRight, FiMail } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import avatar from '../../assets/gk.png'
+import avatar from '../../assets/gk.png';
+import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Hero() {
+  const { landing } = usePortfolio();
+  const data = landing || {
+    heroName: 'Gokul',
+    heroTagline: 'SharePoint, M365 & React Architect',
+    heroIntro: 'I specialize in architecting and building enterprise-grade modern workplace solutions, transforming complex requirements into high-performance digital environments.',
+    heroAvailability: 'AVAILABLE FOR NEW OPPORTUNITIES',
+    heroAvatar: ''
+  };
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-20 overflow-hidden" id="hero">
       {/* Dynamic Background Elements */}
@@ -26,7 +35,7 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
               </div>
-              AVAILABLE FOR NEW OPPORTUNITIES
+              {data.heroAvailability}
             </motion.div>
             
             <motion.h1 
@@ -35,7 +44,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="font-display font-bold text-[clamp(3rem,8vw,5.5rem)] leading-[1.05] tracking-tight text-ink mb-4"
             >
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-secondary to-accent bg-[length:200%_auto] animate-pulse-slow glow-text-cyan">Gokul</span>.
+              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-secondary to-accent bg-[length:200%_auto] animate-pulse-slow glow-text-cyan">{data.heroName}</span>.
             </motion.h1>
 
             <motion.h2
@@ -44,7 +53,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-2xl md:text-3xl font-mono text-ink-soft mb-6"
             >
-              SharePoint, M365 & React Architect
+              {data.heroTagline}
             </motion.h2>
 
             <motion.p
@@ -53,7 +62,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-lg text-ink-soft/80 max-w-xl font-light leading-relaxed mb-10"
             >
-              I specialize in architecting and building enterprise-grade modern workplace solutions, transforming complex requirements into high-performance digital environments.
+              {data.heroIntro}
             </motion.p>
             
             <motion.div 
@@ -84,10 +93,10 @@ export default function Hero() {
             {/* The Photo Container */}
             <div className="relative aspect-square rounded-[2rem] overflow-hidden border-2 border-white/10 shadow-2xl bg-[#0a0a0a]/80 backdrop-blur-xl group">
               
-              {/* Image element - update src to your actual image path */}
+              {/* Image element */}
               <img 
-                src={avatar} 
-                alt="Gokul"
+                src={data.heroAvatar || avatar} 
+                alt={data.heroName}
                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 grayscale contrast-[1.2] group-hover:grayscale-0"
               />
 

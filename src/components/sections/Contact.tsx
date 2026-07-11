@@ -6,8 +6,12 @@ import { FiTerminal, FiSend } from 'react-icons/fi';
 import { socials } from '@/constants/nav';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Contact() {
+  const { landing } = usePortfolio();
+  const currentSocials = landing?.socials || socials;
+  
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,38 +23,33 @@ export default function Contact() {
     setError('');
     
     try {
-      console.log("Sending to EmailJS...");
-      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          service_id: "service_nr34ogg",     // Get from EmailJS
-          template_id: "template_l1segfh",   // Get from EmailJS
-          user_id: "6TpMOIk9wtPAUlDGq",        // Get from EmailJS Account > API Keys
-          template_params: {
-            from_name: formData.name,
-            reply_to: formData.email,
-            message: formData.message,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("EmailJS rejected the payload. Check your EmailJS keys.");
-      }
-
-      console.log("EmailJS successful. Saving to Firestore in background...");
-      // Save to Firestore Database for the Admin Dashboard (Fire and forget)
-      addDoc(collection(db, 'messages'), {
+      const uniqueId = `<contact-${Date.now()}-${Math.random().toString(36).substr(2, 9)}@portfolio.local>`;
+      
+      console.log("Saving to Firestore messages collection...");
+      // Save to Firestore Database for the Admin Dashboard
+      await addDoc(collection(db, 'messages'), {
         name: formData.name,
         email: formData.email,
         message: formData.message,
+        messageId: uniqueId,
         status: 'unread',
         createdAt: serverTimestamp()
-      }).catch(err => console.error("Firestore background save error:", err));
+      });
+
+      console.log("Triggering email delivery via Firebase extension...");
+      // Add to 'mail' collection to trigger the email to the owner
+      await addDoc(collection(db, 'mail'), {
+        to: 'gokulgangadharan79@gmail.com', // Replace with the owner's email
+        replyTo: formData.email,
+        message: {
+          subject: `New Contact Form Submission from ${formData.name}`,
+          text: `You have received a new message from your portfolio website.\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`,
+          html: `<p>You have received a new message from your portfolio website.</p><p><strong>Name:</strong> ${formData.name}<br><strong>Email:</strong> ${formData.email}</p><p><strong>Message:</strong><br>${formData.message.replace(/\n/g, '<br>')}</p>`,
+          headers: {
+            'Message-ID': uniqueId
+          }
+        }
+      });
 
       setSent(true);
     } catch (err: any) {
@@ -73,8 +72,8 @@ export default function Contact() {
           />
 
           <Reveal delay={0.2}>
-            <div className="mt-16 border-t border-line/30 pt-8 flex flex-col gap-4">
-              {socials.map((s) => (
+            <div className="mt-16 border-t border-line/30 pt-0 flex flex-col gap-4">
+              {currentSocials.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}

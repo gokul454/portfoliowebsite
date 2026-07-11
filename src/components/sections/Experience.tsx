@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { experience } from '@/data/content';
+import { usePortfolio } from '@/context/PortfolioContext';
 import { FiCommand } from 'react-icons/fi';
 
 export default function Experience() {
+  const { experience, loading } = usePortfolio();
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -12,8 +13,17 @@ export default function Experience() {
       <div className="max-w-[] mx-auto z-10 relative">
         <SectionHeading index="0x03" label="EXECUTION_LOG" title="Where the work has happened." />
 
-        <div className="mt-12 md:mt-16 flex flex-col md:flex-row gap-8 md:gap-12 min-h-[400px]">
-          {/* Tab Navigation (Left on desktop, Top on mobile) */}
+        {loading ? (
+          <div className="mt-12 md:mt-16 flex flex-col items-center justify-center py-10">
+            <div className="w-10 h-10 border border-dashed border-accent rounded-full animate-spin"></div>
+          </div>
+        ) : experience.length === 0 ? (
+          <div className="mt-12 md:mt-16 text-center font-mono text-ink-soft opacity-50 py-10">
+            NO EXPERIENCE RECORDS FOUND
+          </div>
+        ) : (
+          <div className="mt-12 md:mt-16 flex flex-col md:flex-row gap-8 md:gap-12 min-h-[400px]">
+            {/* Tab Navigation (Left on desktop, Top on mobile) */}
           <div className="flex md:flex-col overflow-x-auto md:overflow-x-visible no-scrollbar pb-4 md:pb-0 md:w-64 shrink-0 border-b md:border-b-0 md:border-l border-line/30 relative">
             {experience.map((item, index) => (
               <button
@@ -82,6 +92,7 @@ export default function Experience() {
             </AnimatePresence>
           </div>
         </div>
+        )}
       </div>
     </section>
   );

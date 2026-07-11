@@ -84,5 +84,15 @@ export default function ProjectCover({ variant, className = '' }: ProjectCoverPr
     ),
   };
 
+  if (variant && (variant.startsWith('http://') || variant.startsWith('https://'))) {
+    return (
+      <img 
+        src={variant} 
+        alt="Project Cover" 
+        className={`${className} object-cover`} 
+      />
+    );
+  }
+
   return <div className={className}>{covers[variant] ?? covers.primeops}</div>;
 }

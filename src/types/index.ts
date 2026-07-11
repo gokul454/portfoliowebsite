@@ -40,3 +40,16 @@ export interface ServiceItem {
   title: string;
   description: string;
 }
+
+export interface LandingData {
+  heroName: string;
+  heroTagline: string;
+  heroIntro: string;
+  heroAvailability: string;
+  heroAvatar: string;
+  aboutHeading: string;
+  aboutIntro: string;
+  aboutDetails: string;
+  stats: { value: string; label: string }[];
+  socials?: { label: string; href: string }[];
+}

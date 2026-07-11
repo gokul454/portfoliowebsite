@@ -1,7 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiArrowUpRight, FiTerminal } from 'react-icons/fi';
-import { projects } from '@/data/projects';
+import { usePortfolio } from '@/context/PortfolioContext';
 import type { Project } from '@/types';
 import ProjectCover from '@/components/project/ProjectCover';
 import Reveal from '@/components/ui/Reveal';
@@ -18,12 +18,22 @@ const blocks: { key: keyof Project; label: string; index: string }[] = [
 
 export default function ProjectDetail() {
   const { id } = useParams();
+  const { projects, loading } = usePortfolio();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-32">
+        <div className="w-12 h-12 border border-dashed border-accent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   const project = projects.find((p) => p.id === id);
   const index = projects.findIndex((p) => p.id === id);
 
   if (!project) return <Navigate to="/" replace />;
 
-  const next = projects[(index + 1) % projects.length];
+  const next = projects.length > 1 ? projects[(index + 1) % projects.length] : null;
 
   return (
     <article className="pt-32 md:pt-40 pb-20">
@@ -110,7 +120,7 @@ export default function ProjectDetail() {
                   className="border-t border-line/30 pt-12 first:pt-0 first:border-t-0"
                 >
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="flex items-center px-3 py-1 rounded bg-secondary/10 border border-secondary/30 text-secondary font-mono text-xs font-bold tracking-widest glow-purple" style={{textShadow: '0 0 10px rgba(139, 92, 246, 0.5)'}}>
+                    <div className="flex items-center px-3 py-1 rounded bg-secondary/10 border border-secondary/30 text-secondary font-mono text-xs font-bold tracking-widest glow-purple" style={{ textShadow: '0 0 10px rgba(139, 92, 246, 0.5)' }}>
                       {b.index}
                     </div>
                     <h2 className="font-display font-bold text-2xl md:text-3xl text-ink">{b.label}</h2>
@@ -124,21 +134,23 @@ export default function ProjectDetail() {
           </div>
         </div>
 
-        <div className="mt-24 pt-10 flex flex-col items-center justify-center text-center">
-          <span className="font-mono text-xs text-ink-soft tracking-widest uppercase mb-6">{'// NEXT_DEPLOYMENT'}</span>
-          <Link
-            to={`/work/${next.id}`}
-            className="group font-display font-bold text-4xl md:text-5xl text-ink hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-accent hover:to-secondary transition-all duration-300"
-          >
-            {next.title}
-          </Link>
-          
-          <div className="mt-16">
-            <Button href="/#contact" icon={<FiArrowUpRight />} variant="ghost">
-              INITIALIZE_SIMILAR_PROJECT
-            </Button>
+        {next && (
+          <div className="mt-24 pt-10 flex flex-col items-center justify-center text-center">
+            <span className="font-mono text-xs text-ink-soft tracking-widest uppercase mb-6">{'// NEXT_DEPLOYMENT'}</span>
+            <Link
+              to={`/work/${next.id}`}
+              className="group font-display font-bold text-4xl md:text-5xl text-ink hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-accent hover:to-secondary transition-all duration-300"
+            >
+              {next.title}
+            </Link>
+
+            <div className="mt-16">
+              <Button href="/#contact" icon={<FiArrowUpRight />} variant="ghost">
+                INITIALIZE_SIMILAR_PROJECT
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </article>
   );

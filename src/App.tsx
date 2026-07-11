@@ -3,12 +3,14 @@ import Nav from '@/components/layout/Nav';
 import Home from '@/pages/Home';
 import ProjectDetail from '@/pages/ProjectDetail';
 import { useLenis } from '@/hooks/useLenis';
+import { PortfolioProvider } from '@/context/PortfolioContext';
 
 export default function App() {
   useLenis();
 
   return (
-    <div className="relative min-h-screen bg-base text-ink font-body">
+    <PortfolioProvider>
+      <div className="relative min-h-screen bg-base text-ink font-body">
       <div className="fixed inset-0 pointer-events-none z-0 bg-grid opacity-40"></div>
       
       {/* Ambient background glows */}
@@ -27,6 +29,7 @@ export default function App() {
           <p>© {new Date().getFullYear()} GOKUL K. // ALL SYSTEMS NOMINAL</p>
         </footer>
       </div>
-    </div>
+      </div>
+    </PortfolioProvider>
   );
 }

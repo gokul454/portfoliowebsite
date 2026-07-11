@@ -1,6 +1,10 @@
 import { socials } from '@/constants/nav';
+import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Footer() {
+  const { landing } = usePortfolio();
+  const currentSocials = landing?.socials || socials;
+  
   return (
     <footer className="border-t border-line bg-paper-alt px-6 md:px-12 py-14">
       <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-end justify-between gap-10">
@@ -14,7 +18,7 @@ export default function Footer() {
         </div>
 
         <div className="flex gap-8">
-          {socials.map((s) => (
+          {currentSocials.map((s) => (
             <a
               key={s.label}
               href={s.href}

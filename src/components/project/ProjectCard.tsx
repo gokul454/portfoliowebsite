@@ -29,7 +29,7 @@ export default function ProjectCard({ project, reverse = false }: ProjectCardPro
                 <ProjectCover variant={project.cover} className="w-full h-full mix-blend-luminosity group-hover:mix-blend-normal" />
               </motion.div>
             </div>
-            
+
             <div className="absolute top-6 right-6 w-10 h-10 rounded bg-accent/10 border border-accent/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:glow-cyan">
               <FiArrowRight className="text-accent text-xl" />
             </div>

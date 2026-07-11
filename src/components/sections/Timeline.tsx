@@ -2,9 +2,10 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Reveal from '@/components/ui/Reveal';
 import SectionHeading from '@/components/ui/SectionHeading';
-import { timeline } from '@/data/content';
+import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Timeline() {
+  const { timeline, loading } = usePortfolio();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -17,7 +18,16 @@ export default function Timeline() {
       <div className="max-w-[1400px] mx-auto z-10 relative">
         <SectionHeading index="0x06" label="RUNTIME_HISTORY" title="The path so far." />
 
-        <div ref={ref} className="relative mt-12 md:mt-16 max-w-3xl ml-4 md:ml-0">
+        {loading ? (
+          <div className="mt-12 md:mt-16 flex flex-col items-center justify-center py-10">
+            <div className="w-10 h-10 border border-dashed border-accent rounded-full animate-spin"></div>
+          </div>
+        ) : timeline.length === 0 ? (
+          <div className="mt-12 md:mt-16 text-center font-mono text-ink-soft opacity-50 py-10">
+            NO TIMELINE RECORDED
+          </div>
+        ) : (
+          <div ref={ref} className="relative mt-12 md:mt-16 max-w-3xl ml-4 md:ml-0">
           <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-line/30" />
           <motion.div
             style={{ height }}
@@ -38,7 +48,8 @@ export default function Timeline() {
               </Reveal>
             ))}
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );
