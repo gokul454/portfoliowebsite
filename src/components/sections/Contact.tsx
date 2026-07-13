@@ -4,8 +4,6 @@ import Reveal from '@/components/ui/Reveal';
 import Button from '@/components/ui/Button';
 import { FiTerminal, FiSend } from 'react-icons/fi';
 import { socials } from '@/constants/nav';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Contact() {
@@ -23,33 +21,25 @@ export default function Contact() {
     setError('');
     
     try {
-      const uniqueId = `<contact-${Date.now()}-${Math.random().toString(36).substr(2, 9)}@portfolio.local>`;
+      const apiBase = import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5173';
+      console.log("Triggering email delivery and Firestore sync via Vercel serverless API...");
       
-      console.log("Saving to Firestore messages collection...");
-      // Save to Firestore Database for the Admin Dashboard
-      await addDoc(collection(db, 'messages'), {
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        messageId: uniqueId,
-        status: 'unread',
-        createdAt: serverTimestamp()
+      const res = await fetch(`${apiBase}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message
+        })
       });
 
-      console.log("Triggering email delivery via Firebase extension...");
-      // Add to 'mail' collection to trigger the email to the owner
-      await addDoc(collection(db, 'mail'), {
-        to: 'gokulgangadharan79@gmail.com', // Replace with the owner's email
-        replyTo: formData.email,
-        message: {
-          subject: `New Contact Form Submission from ${formData.name}`,
-          text: `You have received a new message from your portfolio website.\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`,
-          html: `<p>You have received a new message from your portfolio website.</p><p><strong>Name:</strong> ${formData.name}<br><strong>Email:</strong> ${formData.email}</p><p><strong>Message:</strong><br>${formData.message.replace(/\n/g, '<br>')}</p>`,
-          headers: {
-            'Message-ID': uniqueId
-          }
-        }
-      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Server responded with an error.");
+      }
 
       setSent(true);
     } catch (err: any) {
