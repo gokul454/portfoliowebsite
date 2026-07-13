@@ -4,6 +4,8 @@ import Reveal from '@/components/ui/Reveal';
 import Button from '@/components/ui/Button';
 import { FiTerminal, FiSend } from 'react-icons/fi';
 import { socials } from '@/constants/nav';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { usePortfolio } from '@/context/PortfolioContext';
 
 export default function Contact() {
@@ -21,30 +23,36 @@ export default function Contact() {
     setError('');
     
     try {
-      const apiBase = import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5173';
-      console.log("Triggering email delivery and Firestore sync via Vercel serverless API...");
-      
-      const res = await fetch(`${apiBase}/api/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message
-        })
+      // 1. Always save to Firestore directly — this is guaranteed to work
+      const docRef = await addDoc(collection(db, 'messages'), {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        subject: `New Contact from ${formData.name}`,
+        status: 'unread',
+        createdAt: serverTimestamp(),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Server responded with an error.");
+      // 2. Optionally fire the serverless API for email notification
+      // This only runs if VITE_ADMIN_API_URL is set (i.e., on deployed Vercel environments)
+      const apiBase = import.meta.env.VITE_ADMIN_API_URL;
+      if (apiBase) {
+        fetch(`${apiBase}/api/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+            firestoreId: docRef.id, // pass existing ID to avoid duplicate
+          })
+        }).catch((err) => console.warn('Email notification failed (non-critical):', err));
       }
 
       setSent(true);
     } catch (err: any) {
       console.error("Submission Error:", err);
-      setError(err.message || "Connection error. Check browser console.");
+      setError(err.message || "Connection error. Please try again.");
     } finally {
       setLoading(false);
     }
